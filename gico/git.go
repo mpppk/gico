@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"os"
 	"io"
+	"fmt"
 )
 
 func SwitchBranch() error {
@@ -21,6 +22,8 @@ func SwitchBranch() error {
 	}
 
 	branchName := strings.Trim(string(str), " \n")
+	branchName = trimBranchName(branchName)
+
 	err = execCommand("git", "checkout", branchName)
 
 	if err != nil {
@@ -30,17 +33,13 @@ func SwitchBranch() error {
 }
 
 func getBranchNames() ([]string, error) {
-	out, err := exec.Command("git", "branch").Output()
+	out, err := exec.Command("git", "branch", "-a").Output()
 
 	if err != nil {
 		return nil, err
 	}
 
 	branchNames := strings.Split(string(out), "\n")
-
-	for i, b := range branchNames {
-		branchNames[i] = strings.Trim(b, "* \n")
-	}
 
 	return branchNames, nil
 }
@@ -70,4 +69,9 @@ func execCommand(commandName string, args ...string) error {
 		return err
 	}
 	return nil
+}
+
+func trimBranchName(branchName string) string {
+	branchName = strings.Trim(branchName, "* \n")
+	return strings.Replace(branchName, "remotes/", "", -1)
 }
