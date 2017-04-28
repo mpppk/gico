@@ -2,30 +2,24 @@ package gico
 
 import (
 	"fmt"
-	"github.com/mattn/go-pipeline"
 	"strings"
 	"os/exec"
 	"os"
+	"io"
 )
 
 func SwitchBranch() error {
 	names, err := getBranchNames()
 
-	out, err := pipeline.Output(
-		[]string{"echo", strings.Join(names, "\n")},
-		[]string{"peco"},
-	)
+	str, err := pipeToPeco(names)
 
 	if err != nil {
 		return err
 	}
 
-	branchName := strings.Trim(string(out), " \n")
+	branchName := strings.Trim(string(str), " \n")
 	fmt.Println("branch ", branchName)
-	cmd := exec.Command("git", "checkout", branchName)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
+	err = execCommand("git", "checkout", branchName)
 
 	if err != nil {
 		return err
@@ -47,4 +41,31 @@ func getBranchNames() ([]string, error) {
 	}
 
 	return branchNames, nil
+}
+
+func pipeToPeco(texts []string) (string, error) {
+
+	cmd := exec.Command("peco")
+	stdin, _ := cmd.StdinPipe()
+	io.WriteString(stdin, strings.Join(texts, "\n"))
+	stdin.Close()
+	out, err := cmd.Output()
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), nil
+}
+
+func execCommand(commandName string, args ...string) error {
+	cmd := exec.Command(commandName, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
