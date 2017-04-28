@@ -2,14 +2,13 @@ package gico
 
 import (
 	"fmt"
-	"gopkg.in/libgit2/git2go.v25"
 	"github.com/mattn/go-pipeline"
 	"strings"
 	"os/exec"
 	"os"
 )
 
-func SwitchBranch(repo *git.Repository) error {
+func SwitchBranch() error {
 	names, err := getBranchNames()
 
 	out, err := pipeline.Output(
