@@ -1,7 +1,6 @@
 package gico
 
 import (
-	"fmt"
 	"strings"
 	"os/exec"
 	"os"
@@ -17,8 +16,11 @@ func SwitchBranch() error {
 		return err
 	}
 
+	if len(str) == 0 {
+		return nil
+	}
+
 	branchName := strings.Trim(string(str), " \n")
-	fmt.Println("branch ", branchName)
 	err = execCommand("git", "checkout", branchName)
 
 	if err != nil {
