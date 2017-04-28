@@ -10,7 +10,7 @@ import (
 )
 
 func SwitchBranch(repo *git.Repository) error {
-	names, err := getBranchNames(repo)
+	names, err := getBranchNames()
 
 	out, err := pipeline.Output(
 		[]string{"echo", strings.Join(names, "\n")},
@@ -34,22 +34,18 @@ func SwitchBranch(repo *git.Repository) error {
 	return nil
 }
 
-func getBranchNames(repo *git.Repository) ([]string, error) {
-	branchIterator, err := repo.NewBranchIterator(git.BranchLocal)
+func getBranchNames() ([]string, error) {
+	out, err := exec.Command("git", "branch").Output()
+
 	if err != nil {
 		return nil, err
 	}
 
-	var branchNames []string
-	var branchIteratorFunc git.BranchIteratorFunc = func(branch *git.Branch, branchType git.BranchType) error {
-		name, err := branch.Name()
-		if err != nil {
-			return err
-		}
-		branchNames = append(branchNames, name)
-		return nil
+	branchNames := strings.Split(string(out), "\n")
+
+	for i, b := range branchNames {
+		branchNames[i] = strings.Trim(b, "* \n")
 	}
 
-	branchIterator.ForEach(branchIteratorFunc)
 	return branchNames, nil
 }
