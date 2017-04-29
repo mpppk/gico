@@ -1,6 +1,7 @@
 package gico
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -9,20 +10,11 @@ import (
 )
 
 func SwitchBranch() error {
-	names, err := getBranchNames()
-
-	str, err := pipeToPeco(names)
+	branchName, err := GetBranchInteractive()
 
 	if err != nil {
-		return err
+		fmt.Println(err)
 	}
-
-	if len(str) == 0 {
-		return nil
-	}
-
-	branchName := strings.Trim(string(str), " \n")
-	branchName = trimBranchName(branchName)
 
 	err = execCommand("git", "checkout", branchName)
 
@@ -30,6 +22,23 @@ func SwitchBranch() error {
 		return err
 	}
 	return nil
+}
+
+func GetBranchInteractive() (string, error) {
+	names, err := getBranchNames()
+
+	str, err := pipeToPeco(names)
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(str) == 0 {
+		return "", nil
+	}
+
+	branchName := strings.Trim(string(str), " \n")
+	return trimBranchName(branchName), nil
 }
 
 func getBranchNames() ([]string, error) {
@@ -67,7 +76,6 @@ func GetLogHash() (string, error) {
 
 func getLogs() ([]string, error) {
 	out, err := exec.Command("git", "log", "--oneline", "--graph", "--decorate").Output()
-	// git log --oneline --graph --decorate
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +84,6 @@ func getLogs() ([]string, error) {
 }
 
 func pipeToPeco(texts []string) (string, error) {
-
 	cmd := exec.Command("peco")
 	stdin, _ := cmd.StdinPipe()
 	io.WriteString(stdin, strings.Join(texts, "\n"))
