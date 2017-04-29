@@ -58,8 +58,30 @@ func extractHash(log string) (string, error) {
 	return reg.FindString(log), nil
 }
 
+func arrangeHashPosition(logs []string) ([]string, error) {
+	var newLogs []string
+	for _, log := range logs {
+		hash, err := extractHash(log)
+
+		if err != nil {
+			return nil, err
+		}
+
+		newLog := strings.Replace(log, hash, "", -1)
+
+		newLogs = append(newLogs, newLog+" ["+hash+"]")
+	}
+	return newLogs, nil
+}
+
 func GetLogHashInteractive() (string, error) {
 	logs, err := getLogs()
+
+	if err != nil {
+		return "", err
+	}
+
+	logs, err = arrangeHashPosition(logs)
 
 	if err != nil {
 		return "", err
