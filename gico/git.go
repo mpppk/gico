@@ -1,11 +1,11 @@
 package gico
 
 import (
-	"strings"
-	"os/exec"
-	"os"
 	"io"
-	"fmt"
+	"os"
+	"os/exec"
+	"regexp"
+	"strings"
 )
 
 func SwitchBranch() error {
@@ -42,6 +42,37 @@ func getBranchNames() ([]string, error) {
 	branchNames := strings.Split(string(out), "\n")
 
 	return branchNames, nil
+}
+
+func extractHash(log string) (string, error) {
+	reg := regexp.MustCompile(`[0123456789abcdef]{7}`)
+	return reg.FindString(log), nil
+}
+
+func GetLogHash() (string, error) {
+	logs, err := getLogs()
+
+	if err != nil {
+		return "", err
+	}
+
+	log, err := pipeToPeco(logs)
+
+	if err != nil {
+		return "", err
+	}
+
+	return extractHash(log)
+}
+
+func getLogs() ([]string, error) {
+	out, err := exec.Command("git", "log", "--oneline", "--graph", "--decorate").Output()
+	// git log --oneline --graph --decorate
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.Split(string(out), "\n"), nil
 }
 
 func pipeToPeco(texts []string) (string, error) {
