@@ -58,7 +58,7 @@ func extractHash(log string) (string, error) {
 	return reg.FindString(log), nil
 }
 
-func GetLogHash() (string, error) {
+func GetLogHashInteractive() (string, error) {
 	logs, err := getLogs()
 
 	if err != nil {

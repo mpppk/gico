@@ -13,7 +13,7 @@ var logCmd = &cobra.Command{
 	Short: "show git log",
 	Long:  `show git log`,
 	Run: func(cmd *cobra.Command, args []string) {
-		result, err := gico.GetLogHash()
+		result, err := gico.GetLogHashInteractive()
 
 		if err != nil {
 			fmt.Println(err)
