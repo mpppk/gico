@@ -6,6 +6,7 @@ import (
 	"strings"
 	"errors"
 	"regexp"
+	"os"
 )
 
 func PipeToPeco(texts []string) (string, error) {
@@ -43,4 +44,16 @@ func ParseRemoteURL(url string) (host, owner, repoName string, err error) {
 	} else {
 		return "", "", "", errors.New("unknown host: " + url)
 	}
+}
+
+func ExecCommand(commandName string, args ...string) error {
+	cmd := exec.Command(commandName, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

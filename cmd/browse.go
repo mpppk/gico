@@ -7,6 +7,7 @@ import (
 	"github.com/mpppk/gico/gico"
 	"github.com/spf13/cobra"
 	"github.com/skratchdot/open-golang/open"
+	"github.com/mpppk/gico/finder"
 )
 
 var issueFlag bool
@@ -23,7 +24,7 @@ var browseCmd = &cobra.Command{
 		gico.PanicIfErrorExist(err)
 
 		if issueFlag {
-			issue, err := gico.SelectIssueInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
+			issue, err := finder.SelectIssueInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
 			gico.PanicIfErrorExist(err)
 
 			open.Run(issue.GetHTMLURL())

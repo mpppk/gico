@@ -36,7 +36,7 @@ func createIssueInfo(issue *github.Issue) string {
 	return "#" + strconv.Itoa(issue.GetNumber()) + " " + issue.GetTitle()
 }
 
-func createIssueInfos(issues []*github.Issue) (issueInfos []string) {
+func CreateIssueInfos(issues []*github.Issue) (issueInfos []string) {
 	for _, issue := range issues {
 		issueInfos = append(issueInfos, createIssueInfo(issue))
 	}
@@ -59,29 +59,3 @@ func FindIssue(issues []*github.Issue, issueInfo string) (*github.Issue, error) 
 	return targetIssue, nil
 }
 
-func SelectIssueInteractive(ctx context.Context, token string, remote *Remote) (*github.Issue, error) {
-
-	client := GetGitHubClient(ctx, token)
-	issues, err := GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
-	if err != nil {
-		return nil, err
-	}
-
-
-	selectedIssueTitle, err := PipeToPeco(createIssueInfos(issues))
-	if err != nil {
-		return nil, err
-	}
-
-	if selectedIssueTitle == "" {
-		return nil, nil
-	}
-
-	issue, err := FindIssue(issues, selectedIssueTitle)
-	if err != nil {
-		return nil, err
-	}
-
-	return issue, nil
-
-}
