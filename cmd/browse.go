@@ -5,9 +5,10 @@ import (
 	"os"
 
 	"github.com/mpppk/gico/gico"
-	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
+
+var issueFlag bool
 
 // browseCmd represents the browse command
 var browseCmd = &cobra.Command{
@@ -16,29 +17,18 @@ var browseCmd = &cobra.Command{
 	Long:  `browse repo`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		client := gico.GetGitHubClient(context.Background(), os.Getenv("GICO_GITHUB_TOKEN"))
 
 		originRemote, err := gico.GetOriginRemote()
 		gico.PanicIfErrorExist(err)
 
-		issues, err := gico.GetIssues(ctx, client, originRemote.Owner, originRemote.RepoName, nil)
-		gico.PanicIfErrorExist(err)
-
-		var issueTitles []string
-		for _, issue := range issues {
-			issueTitles = append(issueTitles, issue.GetTitle())
+		if issueFlag {
+			gico.OpenIssuePageInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
 		}
-
-		selectedIssueTitle, err := gico.PipeToPeco(issueTitles)
-		gico.PanicIfErrorExist(err)
-
-		issue, err := gico.FindIssue(issues, selectedIssueTitle)
-		gico.PanicIfErrorExist(err)
-
-		open.Run(issue.GetHTMLURL())
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(browseCmd)
+	browseCmd.Flags().BoolVarP(&issueFlag, "issue", "i", false, "browse issue")
 }
+

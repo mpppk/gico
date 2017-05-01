@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"github.com/skratchdot/open-golang/open"
 )
 
 func GetGitHubClient(ctx context.Context, token string) *github.Client {
@@ -45,4 +46,23 @@ func FindIssue(issues []*github.Issue, title string) (*github.Issue, error) {
 	}
 
 	return targetIssue, nil
+}
+
+func OpenIssuePageInteractive(ctx context.Context, token string, remote *Remote) {
+	client := GetGitHubClient(ctx, token)
+	issues, err := GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
+	PanicIfErrorExist(err)
+
+	var issueTitles []string
+	for _, issue := range issues {
+		issueTitles = append(issueTitles, issue.GetTitle())
+	}
+
+	selectedIssueTitle, err := PipeToPeco(issueTitles)
+	PanicIfErrorExist(err)
+
+	issue, err := FindIssue(issues, selectedIssueTitle)
+	PanicIfErrorExist(err)
+
+	open.Run(issue.GetHTMLURL())
 }
