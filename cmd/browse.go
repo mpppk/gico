@@ -6,6 +6,7 @@ import (
 
 	"github.com/mpppk/gico/gico"
 	"github.com/spf13/cobra"
+	"github.com/skratchdot/open-golang/open"
 )
 
 var issueFlag bool
@@ -22,7 +23,10 @@ var browseCmd = &cobra.Command{
 		gico.PanicIfErrorExist(err)
 
 		if issueFlag {
-			gico.OpenIssuePageInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
+			issue, err := gico.SelectIssueInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
+			gico.PanicIfErrorExist(err)
+
+			open.Run(issue.GetHTMLURL())
 		}
 	},
 }
@@ -31,4 +35,3 @@ func init() {
 	RootCmd.AddCommand(browseCmd)
 	browseCmd.Flags().BoolVarP(&issueFlag, "issue", "i", false, "browse issue")
 }
-

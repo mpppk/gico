@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
-	"github.com/skratchdot/open-golang/open"
 	"strconv"
 )
 
@@ -60,16 +59,29 @@ func FindIssue(issues []*github.Issue, issueInfo string) (*github.Issue, error) 
 	return targetIssue, nil
 }
 
-func OpenIssuePageInteractive(ctx context.Context, token string, remote *Remote) {
+func SelectIssueInteractive(ctx context.Context, token string, remote *Remote) (*github.Issue, error) {
+
 	client := GetGitHubClient(ctx, token)
 	issues, err := GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
-	PanicIfErrorExist(err)
+	if err != nil {
+		return nil, err
+	}
+
 
 	selectedIssueTitle, err := PipeToPeco(createIssueInfos(issues))
-	PanicIfErrorExist(err)
+	if err != nil {
+		return nil, err
+	}
+
+	if selectedIssueTitle == "" {
+		return nil, nil
+	}
 
 	issue, err := FindIssue(issues, selectedIssueTitle)
-	PanicIfErrorExist(err)
+	if err != nil {
+		return nil, err
+	}
 
-	open.Run(issue.GetHTMLURL())
+	return issue, nil
+
 }
