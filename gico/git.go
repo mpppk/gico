@@ -2,7 +2,6 @@ package gico
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -27,7 +26,7 @@ func SwitchBranch() error {
 func GetBranchInteractive() (string, error) {
 	names, err := getBranchNames()
 
-	str, err := pipeToPeco(names)
+	str, err := PipeToPeco(names)
 
 	if err != nil {
 		return "", err
@@ -87,7 +86,7 @@ func GetLogHashInteractive() (string, error) {
 		return "", err
 	}
 
-	log, err := pipeToPeco(logs)
+	log, err := PipeToPeco(logs)
 
 	if err != nil {
 		return "", err
@@ -103,20 +102,6 @@ func getLogs() ([]string, error) {
 	}
 
 	return strings.Split(string(out), "\n"), nil
-}
-
-func pipeToPeco(texts []string) (string, error) {
-	cmd := exec.Command("peco")
-	stdin, _ := cmd.StdinPipe()
-	io.WriteString(stdin, strings.Join(texts, "\n"))
-	stdin.Close()
-	out, err := cmd.Output()
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(out), nil
 }
 
 func execCommand(commandName string, args ...string) error {
