@@ -7,6 +7,7 @@ import (
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 	"github.com/skratchdot/open-golang/open"
+	"strconv"
 )
 
 func GetGitHubClient(ctx context.Context, token string) *github.Client {
@@ -32,10 +33,21 @@ func GetIssues(ctx context.Context, client *github.Client, owner, repo string, o
 	return issues, nil
 }
 
-func FindIssue(issues []*github.Issue, title string) (*github.Issue, error) {
+func createIssueInfo(issue *github.Issue) string {
+	return "#" + strconv.Itoa(issue.GetNumber()) + " " + issue.GetTitle()
+}
+
+func createIssueInfos(issues []*github.Issue) (issueInfos []string) {
+	for _, issue := range issues {
+		issueInfos = append(issueInfos, createIssueInfo(issue))
+	}
+	return issueInfos
+}
+
+func FindIssue(issues []*github.Issue, issueInfo string) (*github.Issue, error) {
 	var targetIssue *github.Issue = nil
 	for _, issue := range issues {
-		if issue.GetTitle() == title {
+		if createIssueInfo(issue) == issueInfo {
 			targetIssue = issue
 			break
 		}
@@ -53,12 +65,7 @@ func OpenIssuePageInteractive(ctx context.Context, token string, remote *Remote)
 	issues, err := GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
 	PanicIfErrorExist(err)
 
-	var issueTitles []string
-	for _, issue := range issues {
-		issueTitles = append(issueTitles, issue.GetTitle())
-	}
-
-	selectedIssueTitle, err := PipeToPeco(issueTitles)
+	selectedIssueTitle, err := PipeToPeco(createIssueInfos(issues))
 	PanicIfErrorExist(err)
 
 	issue, err := FindIssue(issues, selectedIssueTitle)
