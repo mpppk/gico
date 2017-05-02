@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/mpppk/gico/finder"
 	"github.com/mpppk/gico/git"
 	"github.com/mpppk/gico/utils"
+	"github.com/spf13/viper"
 )
 
 var issueFlag bool
@@ -25,7 +25,7 @@ var browseCmd = &cobra.Command{
 		utils.PanicIfErrorExist(err)
 
 		if issueFlag {
-			issue, err := finder.SelectIssueInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
+			issue, err := finder.SelectIssueInteractive(ctx, viper.GetString("repos.github.com.oauth_token"), originRemote)
 			utils.PanicIfErrorExist(err)
 
 			open.Run(issue.GetHTMLURL())
