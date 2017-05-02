@@ -1,4 +1,4 @@
-package gico
+package utils
 
 import (
 	"os/exec"

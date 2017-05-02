@@ -1,15 +1,16 @@
 package finder
 
 import (
-	"github.com/mpppk/gico/gico"
 	"strings"
 	"fmt"
+	"github.com/mpppk/gico/git"
+	"github.com/mpppk/gico/utils"
 )
 
 func GetBranchInteractive() (string, error) {
-	names, err := gico.GetBranchNames()
+	names, err := git.GetBranchNames()
 
-	str, err := gico.PipeToPeco(names)
+	str, err := utils.PipeToPeco(names)
 
 	if err != nil {
 		return "", err
@@ -20,7 +21,7 @@ func GetBranchInteractive() (string, error) {
 	}
 
 	branchName := strings.Trim(string(str), " \n")
-	return gico.TrimBranchName(branchName), nil
+	return git.TrimBranchName(branchName), nil
 }
 
 func SwitchBranchInteractive() error {
@@ -30,7 +31,7 @@ func SwitchBranchInteractive() error {
 		fmt.Println(err)
 	}
 
-	err = gico.ExecCommand("git", "checkout", branchName)
+	err = utils.ExecCommand("git", "checkout", branchName)
 
 	if err != nil {
 		return err
@@ -39,23 +40,23 @@ func SwitchBranchInteractive() error {
 }
 
 func GetLogHashInteractive() (string, error) {
-	logs, err := gico.GetLogs()
+	logs, err := git.GetLogs()
 
 	if err != nil {
 		return "", err
 	}
 
-	logs, err = gico.ArrangeHashPosition(logs)
+	logs, err = git.ArrangeHashPosition(logs)
 
 	if err != nil {
 		return "", err
 	}
 
-	log, err := gico.PipeToPeco(logs)
+	log, err := utils.PipeToPeco(logs)
 
 	if err != nil {
 		return "", err
 	}
 
-	return gico.ExtractHash(log)
+	return git.ExtractHash(log)
 }

@@ -4,10 +4,11 @@ import (
 	"context"
 	"os"
 
-	"github.com/mpppk/gico/gico"
 	"github.com/spf13/cobra"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/mpppk/gico/finder"
+	"github.com/mpppk/gico/git"
+	"github.com/mpppk/gico/utils"
 )
 
 var issueFlag bool
@@ -20,12 +21,12 @@ var browseCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
-		originRemote, err := gico.GetOriginRemote()
-		gico.PanicIfErrorExist(err)
+		originRemote, err := git.GetOriginRemote()
+		utils.PanicIfErrorExist(err)
 
 		if issueFlag {
 			issue, err := finder.SelectIssueInteractive(ctx, os.Getenv("GICO_GITHUB_TOKEN"), originRemote)
-			gico.PanicIfErrorExist(err)
+			utils.PanicIfErrorExist(err)
 
 			open.Run(issue.GetHTMLURL())
 		}

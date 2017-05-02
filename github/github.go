@@ -1,4 +1,4 @@
-package gico
+package github
 
 import (
 	"context"

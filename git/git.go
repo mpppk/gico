@@ -1,4 +1,4 @@
-package gico
+package git
 
 import (
 	"os/exec"

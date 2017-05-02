@@ -2,20 +2,21 @@ package finder
 
 import (
 	"context"
-	"github.com/mpppk/gico/gico"
 	"github.com/google/go-github/github"
+	"github.com/mpppk/gico/git"
+	ggithub "github.com/mpppk/gico/github"
+	"github.com/mpppk/gico/utils"
 )
 
-func SelectIssueInteractive(ctx context.Context, token string, remote *gico.Remote) (*github.Issue, error) {
+func SelectIssueInteractive(ctx context.Context, token string, remote *git.Remote) (*github.Issue, error) {
 
-	client := gico.GetGitHubClient(ctx, token)
-	issues, err := gico.GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
+	client := ggithub.GetGitHubClient(ctx, token)
+	issues, err := ggithub.GetIssues(ctx, client, remote.Owner, remote.RepoName, nil)
 	if err != nil {
 		return nil, err
 	}
 
-
-	selectedIssueTitle, err := gico.PipeToPeco(gico.CreateIssueInfos(issues))
+	selectedIssueTitle, err := utils.PipeToPeco(ggithub.CreateIssueInfos(issues))
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +25,7 @@ func SelectIssueInteractive(ctx context.Context, token string, remote *gico.Remo
 		return nil, nil
 	}
 
-	issue, err := gico.FindIssue(issues, selectedIssueTitle)
+	issue, err := ggithub.FindIssue(issues, selectedIssueTitle)
 	if err != nil {
 		return nil, err
 	}

@@ -1,9 +1,10 @@
-package gico
+package git
 
 import (
 	"os/exec"
 	"strings"
 	"errors"
+	"github.com/mpppk/gico/utils"
 )
 
 type Remote struct {
@@ -38,7 +39,7 @@ func GetOriginRemote() (*Remote, error) {
 		originRemote.Name = remoteNameAndUrlInfo[0]
 		urlInfo := strings.Split(remoteNameAndUrlInfo[1], " ")
 
-		host, owner, repoName, err := ParseRemoteURL(urlInfo[0])
+		host, owner, repoName, err := utils.ParseRemoteURL(urlInfo[0])
 
 		if err != nil {
 			return nil, err
