@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	//"context"
-
 	"github.com/spf13/cobra"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/mpppk/gico/finder"

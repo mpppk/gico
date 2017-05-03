@@ -34,7 +34,11 @@ func ArrangeHashPosition(logs []string) ([]string, error) {
 
 		newLog := strings.Replace(log, hash, "", -1)
 
-		newLogs = append(newLogs, newLog+" ["+hash+"]")
+		if hash != "" {
+			hash = "[" + hash + "]"
+		}
+
+		newLogs = append(newLogs, newLog+hash)
 	}
 	return newLogs, nil
 }
