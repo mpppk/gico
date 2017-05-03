@@ -8,11 +8,11 @@ import (
 )
 
 type Remote struct {
-	Name string
+	Name     string
 	FetchURL string
-	PushURL string
-	Host string
-	Owner string
+	PushURL  string
+	Service  string
+	Owner    string
 	RepoName string
 }
 
@@ -45,7 +45,7 @@ func GetOriginRemote() (*Remote, error) {
 			return nil, err
 		}
 
-		originRemote.Host = host
+		originRemote.Service = host
 		originRemote.Owner = owner
 		originRemote.RepoName = repoName
 

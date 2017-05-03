@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"context"
+	//"context"
 
 	"github.com/spf13/cobra"
 	"github.com/skratchdot/open-golang/open"
@@ -10,6 +10,8 @@ import (
 	"github.com/mpppk/gico/utils"
 	"github.com/spf13/viper"
 	"strings"
+	"github.com/mpppk/gico/etc"
+	"context"
 )
 
 var issueFlag bool
@@ -25,18 +27,19 @@ var browseCmd = &cobra.Command{
 		originRemote, err := git.GetOriginRemote()
 		utils.PanicIfErrorExist(err)
 
+		var config etc.Config
+		err = viper.Unmarshal(&config)
+		utils.PanicIfErrorExist(err)
+
 		if issueFlag {
-			if strings.Contains(originRemote.Host, "gitlab") {
-				issue, err := finder.SelectGitLabIssueInteractive(viper.GetString("repos.gitlab.com.oauth_token"), originRemote)
-				utils.PanicIfErrorExist(err)
-				open.Run(issue.WebURL)
-				return
+			for _, host := range config.Hosts {
+				if strings.Contains(originRemote.Service, host.HostType) {
+					issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
+					utils.PanicIfErrorExist(err)
+					open.Run(issue.GetHTMLURL())
+					return
+				}
 			}
-
-			issue, err := finder.SelectIssueInteractive(ctx, viper.GetString("repos.github.com.oauth_token"), originRemote)
-			utils.PanicIfErrorExist(err)
-
-			open.Run(issue.GetHTMLURL())
 		}
 	},
 }
