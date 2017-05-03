@@ -10,7 +10,6 @@ import (
 	"github.com/mpppk/gico/utils"
 	"github.com/spf13/viper"
 	"strings"
-	"fmt"
 )
 
 var issueFlag bool

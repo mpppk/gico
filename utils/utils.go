@@ -30,31 +30,27 @@ func PanicIfErrorExist(err error) {
 }
 
 func ParseRemoteURL(url string) (host, owner, repoName string, err error) {
+
+	var provider string
+
 	if strings.Contains(url, "github.com") {
-		assined := regexp.MustCompile(`github\.com.(.*)`)
-		group := assined.FindStringSubmatch(url)
-
-		if len(group) < 2 {
-			return "", "", "", errors.New("invalid url: " + url)
-		}
-
-		ownerAndRepo := strings.Split(group[1], "/")
-		repoName := strings.Replace(ownerAndRepo[1], ".git", "", -1)
-		return "github", ownerAndRepo[0], repoName, nil
-	} else if strings.Contains(url, "gitlab.com") {
-		assined := regexp.MustCompile(`gitlab\.com.(.*)`)
-		group := assined.FindStringSubmatch(url)
-
-		if len(group) < 2 {
-			return "", "", "", errors.New("invalid url: " + url)
-		}
-
-		ownerAndRepo := strings.Split(group[1], "/")
-		repoName := strings.Replace(ownerAndRepo[1], ".git", "", -1)
-		return "gitlab", ownerAndRepo[0], repoName, nil
-	} else {
+		provider = "github.com"
+	}else if strings.Contains(url, "gitlab.com") {
+		provider = "gitlab.com"
+	}else {
 		return "", "", "", errors.New("unknown host: " + url)
 	}
+
+	assined := regexp.MustCompile( strings.Replace(provider, ".", `\.`, -1) + `.(.*)`)
+	group := assined.FindStringSubmatch(url)
+
+	if len(group) < 2 {
+		return "", "", "", errors.New("invalid url: " + url)
+	}
+
+	ownerAndRepo := strings.Split(group[1], "/")
+	repoName = strings.Replace(ownerAndRepo[1], ".git", "", -1)
+	return strings.Replace(provider, ".com", "", -1), ownerAndRepo[0], repoName, nil
 }
 
 func ExecCommand(commandName string, args ...string) error {
