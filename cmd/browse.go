@@ -24,16 +24,16 @@ var browseCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
-		originRemote, err := git.GetOriginRemote()
+		var config etc.Config
+		err := viper.Unmarshal(&config)
 		utils.PanicIfErrorExist(err)
 
-		var config etc.Config
-		err = viper.Unmarshal(&config)
+		originRemote, err := git.GetOriginRemote(config.Hosts)
 		utils.PanicIfErrorExist(err)
 
 		if issueFlag {
 			for _, host := range config.Hosts {
-				if strings.Contains(originRemote.Service, host.HostType) {
+				if strings.Contains(originRemote.HostType, host.HostType) {
 					issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
 					utils.PanicIfErrorExist(err)
 					open.Run(issue.GetHTMLURL())

@@ -5,18 +5,19 @@ import (
 	"strings"
 	"errors"
 	"github.com/mpppk/gico/utils"
+	"github.com/mpppk/gico/etc"
 )
 
 type Remote struct {
 	Name     string
 	FetchURL string
 	PushURL  string
-	Service  string
+	HostType string
 	Owner    string
 	RepoName string
 }
 
-func GetOriginRemote() (*Remote, error) {
+func GetOriginRemote(hosts []*etc.Host) (*Remote, error) {
 	out, err := exec.Command("git", "remote", "-v").Output()
 
 	if err != nil {
@@ -39,13 +40,13 @@ func GetOriginRemote() (*Remote, error) {
 		originRemote.Name = remoteNameAndUrlInfo[0]
 		urlInfo := strings.Split(remoteNameAndUrlInfo[1], " ")
 
-		host, owner, repoName, err := utils.ParseRemoteURL(urlInfo[0])
+		host, owner, repoName, err := utils.ParseRemoteURL(urlInfo[0], hosts)
 
 		if err != nil {
 			return nil, err
 		}
 
-		originRemote.Service = host
+		originRemote.HostType = host
 		originRemote.Owner = owner
 		originRemote.RepoName = repoName
 
