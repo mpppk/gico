@@ -10,6 +10,7 @@ import (
 	"strings"
 	"github.com/mpppk/gico/etc"
 	"context"
+	"github.com/mpppk/gico/project"
 )
 
 var issueFlag bool
@@ -29,15 +30,22 @@ var browseCmd = &cobra.Command{
 		originRemote, err := git.GetOriginRemote(config.Hosts)
 		utils.PanicIfErrorExist(err)
 
-		if issueFlag {
-			for _, host := range config.Hosts {
-				if strings.Contains(originRemote.HostType, host.HostType) {
-					issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
-					utils.PanicIfErrorExist(err)
-					open.Run(issue.GetHTMLURL())
-					return
-				}
+		for _, host := range config.Hosts {
+			if !strings.Contains(originRemote.HostType, host.HostType) {
+				continue
 			}
+
+			if issueFlag {
+				issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
+				utils.PanicIfErrorExist(err)
+				open.Run(issue.GetHTMLURL())
+				return
+			}
+
+			repo, err := project.GetRepository(ctx, host.HostType, host.OAuthToken, originRemote.Owner, originRemote.RepoName)
+			utils.PanicIfErrorExist(err)
+			open.Run(repo.GetHTMLURL())
+			return
 		}
 	},
 }
