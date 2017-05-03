@@ -14,7 +14,7 @@ import (
 )
 
 var issueFlag bool
-
+var prFlag bool
 // browseCmd represents the browse command
 var browseCmd = &cobra.Command{
 	Use:   "browse",
@@ -39,12 +39,15 @@ var browseCmd = &cobra.Command{
 				issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
 				utils.PanicIfErrorExist(err)
 				open.Run(issue.GetHTMLURL())
-				return
+			}else if prFlag {
+				pr, err := finder.SelectPullRequestInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
+				utils.PanicIfErrorExist(err)
+				open.Run(pr.GetHTMLURL())
+			}else {
+				repo, err := project.GetRepository(ctx, host.HostType, host.OAuthToken, originRemote.Owner, originRemote.RepoName)
+				utils.PanicIfErrorExist(err)
+				open.Run(repo.GetHTMLURL())
 			}
-
-			repo, err := project.GetRepository(ctx, host.HostType, host.OAuthToken, originRemote.Owner, originRemote.RepoName)
-			utils.PanicIfErrorExist(err)
-			open.Run(repo.GetHTMLURL())
 			return
 		}
 	},
@@ -53,4 +56,5 @@ var browseCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(browseCmd)
 	browseCmd.Flags().BoolVarP(&issueFlag, "issue", "i", false, "browse issue")
+	browseCmd.Flags().BoolVarP(&prFlag, "pull-request", "p", false, "browse pull/merge request")
 }
