@@ -41,6 +41,17 @@ func ParseRemoteURL(url string) (host, owner, repoName string, err error) {
 		ownerAndRepo := strings.Split(group[1], "/")
 		repoName := strings.Replace(ownerAndRepo[1], ".git", "", -1)
 		return "github", ownerAndRepo[0], repoName, nil
+	} else if strings.Contains(url, "gitlab.com") {
+		assined := regexp.MustCompile(`gitlab\.com.(.*)`)
+		group := assined.FindStringSubmatch(url)
+
+		if len(group) < 2 {
+			return "", "", "", errors.New("invalid url: " + url)
+		}
+
+		ownerAndRepo := strings.Split(group[1], "/")
+		repoName := strings.Replace(ownerAndRepo[1], ".git", "", -1)
+		return "gitlab", ownerAndRepo[0], repoName, nil
 	} else {
 		return "", "", "", errors.New("unknown host: " + url)
 	}

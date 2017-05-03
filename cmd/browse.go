@@ -9,6 +9,8 @@ import (
 	"github.com/mpppk/gico/git"
 	"github.com/mpppk/gico/utils"
 	"github.com/spf13/viper"
+	"strings"
+	"fmt"
 )
 
 var issueFlag bool
@@ -25,6 +27,13 @@ var browseCmd = &cobra.Command{
 		utils.PanicIfErrorExist(err)
 
 		if issueFlag {
+			if strings.Contains(originRemote.Host, "gitlab") {
+				issue, err := finder.SelectGitLabIssueInteractive(viper.GetString("repos.gitlab.com.oauth_token"), originRemote)
+				utils.PanicIfErrorExist(err)
+				open.Run(issue.WebURL)
+				return
+			}
+
 			issue, err := finder.SelectIssueInteractive(ctx, viper.GetString("repos.github.com.oauth_token"), originRemote)
 			utils.PanicIfErrorExist(err)
 
