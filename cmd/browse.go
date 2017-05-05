@@ -38,11 +38,17 @@ var browseCmd = &cobra.Command{
 			if issueFlag {
 				issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
 				utils.PanicIfErrorExist(err)
-				open.Run(issue.GetHTMLURL())
+
+				if issue != nil {
+					open.Run(issue.GetHTMLURL())
+				}
 			}else if prFlag {
 				pr, err := finder.SelectPullRequestInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
 				utils.PanicIfErrorExist(err)
-				open.Run(pr.GetHTMLURL())
+
+				if pr != nil {
+					open.Run(pr.GetHTMLURL())
+				}
 			}else {
 				repo, err := project.GetRepository(ctx, host.HostType, host.OAuthToken, originRemote.Owner, originRemote.RepoName)
 				utils.PanicIfErrorExist(err)
