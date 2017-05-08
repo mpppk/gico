@@ -31,7 +31,7 @@ var browseCmd = &cobra.Command{
 		utils.PanicIfErrorExist(err)
 
 		for _, host := range config.Hosts {
-			if !strings.Contains(originRemote.HostType, host.HostType) {
+			if !strings.Contains(originRemote.Host, host.Host) {
 				continue
 			}
 

@@ -12,7 +12,7 @@ type Remote struct {
 	Name     string
 	FetchURL string
 	PushURL  string
-	HostType string
+	Host     string
 	Owner    string
 	RepoName string
 }
@@ -46,7 +46,7 @@ func GetOriginRemote(hosts []*etc.Host) (*Remote, error) {
 			return nil, err
 		}
 
-		originRemote.HostType = host
+		originRemote.Host = host
 		originRemote.Owner = owner
 		originRemote.RepoName = repoName
 
