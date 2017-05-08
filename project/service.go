@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/mpppk/gico/etc"
 	"errors"
+	"fmt"
 )
 
 type Service interface{
@@ -12,14 +13,24 @@ type Service interface{
 	GetRepository(ctx context.Context, owner, repo string) (Repository, error)
 }
 
-func GetService(ctx context.Context, hostType, token string) (Service, error){
+func GetService(ctx context.Context, host, hostType, token string) (Service, error){
 	switch hostType {
 	case etc.HOST_TYPE_GITHUB.String():
-		return Service(NewGitHubService(ctx, token)), nil
+		service, err := NewGitHubService(ctx, token)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("aaa")
+		return Service(service), nil
 	}
 	switch hostType {
 	case etc.HOST_TYPE_GITLAB.String():
-		return Service(NewGitLabService(token)), nil
+		service, err := NewGitLabService(token)
+		if err != nil {
+			return nil, err
+		}
+
+		return Service(service), nil
 	}
 	return nil, errors.New("unknown host type: " + hostType)
 }

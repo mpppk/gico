@@ -4,17 +4,33 @@ import (
 	"context"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"errors"
+	"net/url"
 )
 
 type GitHubService struct {
 	Client *github.Client
 }
 
-func NewGitHubService(ctx context.Context, token string) *GitHubService {
+func NewGitHubService(ctx context.Context, token string, baseUrlStrs ...string) (*GitHubService, error) {
+	if len(baseUrlStrs) > 1 {
+		return nil, errors.New("too many base urls")
+	}
+
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
 
-	return &GitHubService{Client: github.NewClient(tc)}
+	if len(baseUrlStrs) == 1 {
+		baseUrl, err := url.Parse(baseUrlStrs[0])
+		if err != nil {
+			return nil, err
+		}
+
+		client.BaseURL = baseUrl
+	}
+
+	return &GitHubService{Client: client}, nil
 }
 
 func (s *GitHubService) GetPullRequests(ctx context.Context, owner, repo string) (pullRequests []PullRequest, err error) {

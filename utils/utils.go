@@ -48,7 +48,7 @@ func ParseRemoteURL(url string, hosts []*etc.Host) (host, owner, repoName string
 
 	ownerAndRepo := strings.Split(group[1], "/")
 	repoName = strings.Replace(ownerAndRepo[1], ".git", "", -1)
-	return strings.Replace(hostName, ".com", "", -1), ownerAndRepo[0], repoName, nil
+	return hostName, ownerAndRepo[0], repoName, nil
 }
 
 func ExecCommand(commandName string, args ...string) error {

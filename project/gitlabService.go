@@ -3,14 +3,25 @@ package project
 import (
 	"context"
 	"github.com/xanzy/go-gitlab"
+	"errors"
 )
 
 type GitLabService struct {
 	Client *gitlab.Client
 }
 
-func NewGitLabService(token string) *GitLabService {
-	return &GitLabService{Client: gitlab.NewClient(nil, token)}
+func NewGitLabService(token string, baseUrlStrs ...string) (*GitLabService, error) {
+	if len(baseUrlStrs) > 1 {
+		return nil, errors.New("too many base urls")
+	}
+
+	client := gitlab.NewClient(nil, token)
+
+	if len(baseUrlStrs) == 1 {
+		client.SetBaseURL(baseUrlStrs[0])
+	}
+
+	return &GitLabService{Client: client}, nil
 }
 
 func (s *GitLabService) GetIssues(ctx context.Context, owner, repo string) (issues []Issue, err error) {

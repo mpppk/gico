@@ -30,7 +30,6 @@ func GetOriginRemote(hosts []*etc.Host) (*Remote, error) {
 	originRemoteStrs, ok := findOriginRemoteStrs(remoteStrs)
 	if !ok {
 		return nil, errors.New("origin remote not found")
-
 	}
 
 	var originRemote = &Remote{}
