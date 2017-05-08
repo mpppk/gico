@@ -7,8 +7,9 @@ import (
 	"github.com/mpppk/gico/utils"
 )
 
-func SelectIssueInteractive(ctx context.Context, hostType, token string, remote *git.Remote) (project.Issue, error) {
-	issues, err := project.GetIssues(ctx, hostType, token, remote.Owner, remote.RepoName)
+func SelectIssueInteractive(ctx context.Context, service project.Service, remote *git.Remote) (project.Issue, error) {
+
+	issues, err := service.GetIssues(ctx, remote.Owner, remote.RepoName)
 
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func SelectIssueInteractive(ctx context.Context, hostType, token string, remote 
 	return project.FindIssue(issues, selectedIssueTitle)
 }
 
-func SelectPullRequestInteractive(ctx context.Context, hostType, token string, remote *git.Remote) (project.Issue, error) {
-	prs, err := project.GetPullRequests(ctx, hostType, token, remote.Owner, remote.RepoName)
+func SelectPullRequestInteractive(ctx context.Context, service project.Service, remote *git.Remote) (project.Issue, error) {
+	prs, err := service.GetPullRequests(ctx, remote.Owner, remote.RepoName)
 
 	if err != nil {
 		return nil, err

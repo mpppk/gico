@@ -35,22 +35,25 @@ var browseCmd = &cobra.Command{
 				continue
 			}
 
+			service, err := project.GetService(ctx, host.HostType, host.OAuthToken)
+			utils.PanicIfErrorExist(err)
+
 			if issueFlag {
-				issue, err := finder.SelectIssueInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
+				issue, err := finder.SelectIssueInteractive(ctx, service, originRemote)
 				utils.PanicIfErrorExist(err)
 
 				if issue != nil {
 					open.Run(issue.GetHTMLURL())
 				}
 			}else if prFlag {
-				pr, err := finder.SelectPullRequestInteractive(ctx, host.HostType, host.OAuthToken, originRemote)
+				pr, err := finder.SelectPullRequestInteractive(ctx, service, originRemote)
 				utils.PanicIfErrorExist(err)
 
 				if pr != nil {
 					open.Run(pr.GetHTMLURL())
 				}
 			}else {
-				repo, err := project.GetRepository(ctx, host.HostType, host.OAuthToken, originRemote.Owner, originRemote.RepoName)
+				repo, err := service.GetRepository(ctx, originRemote.Owner, originRemote.RepoName)
 				utils.PanicIfErrorExist(err)
 				open.Run(repo.GetHTMLURL())
 			}
