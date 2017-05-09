@@ -28,6 +28,7 @@ type Host struct {
 	Host       string
 	HostType   string `mapstructure:"host_type"`
 	OAuthToken string `mapstructure:"oauth_token"`
+	Protocol   string
 }
 
 type Config struct {

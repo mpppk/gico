@@ -12,23 +12,24 @@ type Service interface{
 	GetRepository(ctx context.Context, owner, repo string) (Repository, error)
 }
 
-func GetService(ctx context.Context, host, hostType, token string) (Service, error){
-	switch hostType {
+func GetService(ctx context.Context, host *etc.Host) (Service, error){
+
+	switch host.HostType {
 	case etc.HOST_TYPE_GITHUB.String():
-		service, err := NewGitHubService(ctx, token, "https://api." + host)
+		service, err := NewGitHubService(ctx, host.OAuthToken, host.Protocol + "://api." + host.Host)
 		if err != nil {
 			return nil, err
 		}
 		return Service(service), nil
 	}
-	switch hostType {
+	switch host.HostType {
 	case etc.HOST_TYPE_GITLAB.String():
-		service, err := NewGitLabService(token, "https://" + host + "/api/v3")
+		service, err := NewGitLabService(host.OAuthToken, host.Protocol + "://" + host.Host + "/api/v3")
 		if err != nil {
 			return nil, err
 		}
 
 		return Service(service), nil
 	}
-	return nil, errors.New("unknown host type: " + hostType)
+	return nil, errors.New("unknown host type: " + host.HostType)
 }

@@ -35,7 +35,7 @@ var browseCmd = &cobra.Command{
 				continue
 			}
 
-			service, err := project.GetService(ctx, host.Host, host.HostType, host.OAuthToken)
+			service, err := project.GetService(ctx, host)
 			utils.PanicIfErrorExist(err)
 
 			if issueFlag {
