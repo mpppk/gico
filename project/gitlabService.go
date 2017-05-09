@@ -8,6 +8,7 @@ import (
 
 type GitLabService struct {
 	Client *gitlab.Client
+	ListOptions *gitlab.ListOptions
 }
 
 func NewGitLabService(token string, baseUrlStrs ...string) (*GitLabService, error) {
@@ -21,11 +22,13 @@ func NewGitLabService(token string, baseUrlStrs ...string) (*GitLabService, erro
 		client.SetBaseURL(baseUrlStrs[0])
 	}
 
-	return &GitLabService{Client: client}, nil
+	listOpt := &gitlab.ListOptions{PerPage: 100}
+	return &GitLabService{Client: client, ListOptions: listOpt}, nil
 }
 
 func (s *GitLabService) GetIssues(ctx context.Context, owner, repo string) (issues []Issue, err error) {
-	gitLabIssues, _, err := s.Client.Issues.ListProjectIssues(owner + "/" + repo, nil)
+	opt := &gitlab.ListProjectIssuesOptions{ListOptions: *s.ListOptions}
+	gitLabIssues, _, err := s.Client.Issues.ListProjectIssues(owner + "/" + repo, opt)
 
 	for _, gitLabIssue := range gitLabIssues {
 		issues = append(issues, Issue(&GitLabIssue{Issue:gitLabIssue}))
@@ -35,7 +38,8 @@ func (s *GitLabService) GetIssues(ctx context.Context, owner, repo string) (issu
 }
 
 func (s *GitLabService) GetPullRequests(ctx context.Context, owner, repo string) (pullRequests []PullRequest, err error) {
-	gitLabMergeRequests, _, err := s.Client.MergeRequests.ListMergeRequests(owner + "/" + repo, nil)
+	opt := &gitlab.ListMergeRequestsOptions{ListOptions: *s.ListOptions}
+	gitLabMergeRequests, _, err := s.Client.MergeRequests.ListMergeRequests(owner + "/" + repo, opt)
 
 	for _, gitLabMergeRequest := range gitLabMergeRequests {
 		pullRequests = append(pullRequests, Issue(&GitLabPullRequest{MergeRequest:gitLabMergeRequest}))

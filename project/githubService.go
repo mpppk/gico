@@ -10,6 +10,7 @@ import (
 
 type GitHubService struct {
 	Client *github.Client
+	ListOptions *github.ListOptions
 }
 
 func NewGitHubService(ctx context.Context, token string, baseUrlStrs ...string) (*GitHubService, error) {
@@ -30,11 +31,13 @@ func NewGitHubService(ctx context.Context, token string, baseUrlStrs ...string) 
 		client.BaseURL = baseUrl
 	}
 
-	return &GitHubService{Client: client}, nil
+	listOpt := &github.ListOptions{PerPage: 100}
+	return &GitHubService{Client: client, ListOptions: listOpt}, nil
 }
 
 func (s *GitHubService) GetPullRequests(ctx context.Context, owner, repo string) (pullRequests []PullRequest, err error) {
-	gitHubPullRequests, _, err := s.Client.PullRequests.List(ctx, owner, repo, nil)
+	opt := github.PullRequestListOptions{ListOptions: *s.ListOptions}
+	gitHubPullRequests, _, err := s.Client.PullRequests.List(ctx, owner, repo, &opt)
 
 	if err != nil {
 		return nil, err
@@ -48,7 +51,8 @@ func (s *GitHubService) GetPullRequests(ctx context.Context, owner, repo string)
 }
 
 func (s *GitHubService) GetIssues(ctx context.Context, owner, repo string) (issues []Issue, err error) {
-	gitHubIssues, err := s.getGitHubIssues(ctx, s.Client, owner, repo, nil)
+	opt := &github.IssueListByRepoOptions{ListOptions: *s.ListOptions}
+	gitHubIssues, err := s.getGitHubIssues(ctx, s.Client, owner, repo, opt)
 
 	if err != nil {
 		return nil, err
@@ -85,4 +89,3 @@ func (s *GitHubService) GetRepository(ctx context.Context, owner, repo string) (
 
 	return Repository(&GitHubRepository{Repository: githubRepo}), err
 }
-
