@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/mpppk/gico/etc"
 	"errors"
-	"fmt"
 )
 
 type Service interface{
@@ -16,16 +15,15 @@ type Service interface{
 func GetService(ctx context.Context, host, hostType, token string) (Service, error){
 	switch hostType {
 	case etc.HOST_TYPE_GITHUB.String():
-		service, err := NewGitHubService(ctx, token)
+		service, err := NewGitHubService(ctx, token, "https://api." + host)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("aaa")
 		return Service(service), nil
 	}
 	switch hostType {
 	case etc.HOST_TYPE_GITLAB.String():
-		service, err := NewGitLabService(token)
+		service, err := NewGitLabService(token, "https://" + host + "/api/v3")
 		if err != nil {
 			return nil, err
 		}
