@@ -5,6 +5,7 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"github.com/mpppk/gico/utils"
 	"github.com/mpppk/hlb/hlb"
+	"github.com/mpppk/gico/finder"
 )
 
 type FilterStringer interface {
@@ -21,7 +22,7 @@ var browseCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base, err := hlb.NewCmdBase()
 		utils.PanicIfErrorExist(err)
-		sw := hlb.ServiceWrapper{Base: base}
+		sw := finder.NewServiceWrapper(base)
 
 		url, err := sw.GetRepositoryURL()
 		utils.PanicIfErrorExist(err)

@@ -16,18 +16,13 @@ var browsepullrequestsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base, err := hlb.NewCmdBase()
 		utils.PanicIfErrorExist(err)
-		sw := hlb.ServiceWrapper{Base: base}
+		sw := finder.NewServiceWrapper(base)
 
-		prs, err := sw.GetPullRequests()
+		filterablePrs, err := sw.GetFilterablePullRequests()
 		utils.PanicIfErrorExist(err)
 
-		var filterableIssues []*finder.FilterablePullRequest
-		for _, is := range prs {
-			filterableIssues = append(filterableIssues, &finder.FilterablePullRequest{PullRequest: is})
-		}
-
 		var filterableStrings []finder.FilterableStringer
-		for _, fis := range filterableIssues {
+		for _, fis := range filterablePrs {
 			filterableStrings = append(filterableStrings, finder.FilterableStringer(fis))
 		}
 

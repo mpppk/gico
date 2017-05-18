@@ -16,14 +16,9 @@ var browseissuesCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		base, err := hlb.NewCmdBase()
 		utils.PanicIfErrorExist(err)
-		sw := hlb.ServiceWrapper{Base: base}
-		issues, err := sw.GetIssues()
+		sw := finder.NewServiceWrapper(base)
+		filterableIssues, err := sw.GetFilterableIssues()
 		utils.PanicIfErrorExist(err)
-
-		var filterableIssues []*finder.FilterableIssue
-		for _, is := range issues {
-			filterableIssues = append(filterableIssues, &finder.FilterableIssue{Issue: is})
-		}
 
 		var filterableStrings []finder.FilterableStringer
 		for _, fis := range filterableIssues {
