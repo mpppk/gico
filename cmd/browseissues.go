@@ -11,7 +11,7 @@ import (
 // browseissuesCmd represents the browseissues command
 var browseissuesCmd = &cobra.Command{
 	Use:   "issues",
-	Short: "A brief description of your command",
+	Short: "browse issues",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		base, err := hlb.NewCmdBase()
@@ -20,14 +20,8 @@ var browseissuesCmd = &cobra.Command{
 		filterableIssues, err := sw.GetFilterableIssues()
 		utils.PanicIfErrorExist(err)
 
-		var filterableStrings []finder.FilterableStringer
-		for _, fis := range filterableIssues {
-			filterableStrings = append(filterableStrings, finder.FilterableStringer(fis))
-		}
-
-		res, err := finder.Filter(filterableStrings)
+		issue, err := finder.FilterIssues(filterableIssues)
 		utils.PanicIfErrorExist(err)
-		issue := res.(*finder.FilterableIssue)
 		url := issue.GetHTMLURL()
 		open.Run(url)
 		return

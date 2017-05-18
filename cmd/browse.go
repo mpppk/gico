@@ -32,6 +32,4 @@ var browseCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(browseCmd)
-	browseCmd.Flags().BoolVarP(&issueFlag, "issue", "i", false, "browse issue")
-	browseCmd.Flags().BoolVarP(&prFlag, "pull-request", "p", false, "browse pull/merge request")
 }

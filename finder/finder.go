@@ -1,8 +1,6 @@
 package finder
 
 import (
-	"github.com/mpppk/hlb/project"
-	"strconv"
 	"github.com/mpppk/gico/utils"
 	"errors"
 )
@@ -11,28 +9,12 @@ type FilterableStringer interface {
 	FilterString() string
 }
 
-type FilterableIssue struct {
-	project.Issue
-}
-
-type FilterablePullRequest struct {
-	project.PullRequest
-}
-
-func (f *FilterableIssue) FilterString() string {
-	return "#" + strconv.Itoa(f.GetNumber()) + " " + f.GetTitle()
-}
-
-func (f *FilterablePullRequest) FilterString() string {
-	return "!" + strconv.Itoa(f.GetNumber()) + " " + f.GetTitle()
-}
-
 func Filter(fss []FilterableStringer) (FilterableStringer, error) {
-	var infos []string
+	var filterabletStrs []string
 	for _, fs := range fss {
-		infos = append(infos, fs.FilterString())
+		filterabletStrs = append(filterabletStrs, fs.FilterString())
 	}
-	info, err := utils.PipeToPeco(infos)
+	info, err := utils.PipeToPeco(filterabletStrs)
 	if err != nil {
 		return nil, err
 	}
@@ -42,4 +24,30 @@ func Filter(fss []FilterableStringer) (FilterableStringer, error) {
 		}
 	}
 	return nil, errors.New("not found")
+}
+
+func FilterIssues(issues []*FilterableIssue) (*FilterableIssue, error) {
+	var filterableStrings []FilterableStringer
+	for _, is := range issues {
+		filterableStrings = append(filterableStrings, FilterableStringer(is))
+	}
+
+	res, err := Filter(filterableStrings)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*FilterableIssue), nil
+}
+
+func FilterPullRequests(prs []*FilterablePullRequest) (*FilterablePullRequest, error) {
+	var filterableStrings []FilterableStringer
+	for _, pr := range prs {
+		filterableStrings = append(filterableStrings, FilterableStringer(pr))
+	}
+
+	res, err := Filter(filterableStrings)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*FilterablePullRequest), nil
 }

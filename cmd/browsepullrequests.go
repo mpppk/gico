@@ -11,7 +11,7 @@ import (
 // browsepullrequestsCmd represents the browsepullrequests command
 var browsepullrequestsCmd = &cobra.Command{
 	Use:   "pullrequests",
-	Short: "A brief description of your command",
+	Short: "browse pulrequests",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		base, err := hlb.NewCmdBase()
@@ -21,14 +21,7 @@ var browsepullrequestsCmd = &cobra.Command{
 		filterablePrs, err := sw.GetFilterablePullRequests()
 		utils.PanicIfErrorExist(err)
 
-		var filterableStrings []finder.FilterableStringer
-		for _, fis := range filterablePrs {
-			filterableStrings = append(filterableStrings, finder.FilterableStringer(fis))
-		}
-
-		res, err := finder.Filter(filterableStrings)
-		utils.PanicIfErrorExist(err)
-		pr := res.(*finder.FilterablePullRequest)
+		pr, err := finder.FilterPullRequests(filterablePrs)
 		url := pr.GetHTMLURL()
 		open.Run(url)
 		return
