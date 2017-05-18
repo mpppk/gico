@@ -1,47 +1,45 @@
 package finder
 
 import (
-	"context"
-	"github.com/mpppk/gico/git"
-	"github.com/mpppk/gico/project"
+	"github.com/mpppk/hlb/project"
+	"strconv"
 	"github.com/mpppk/gico/utils"
+	"errors"
 )
 
-func SelectIssueInteractive(ctx context.Context, service project.Service, remote *git.Remote) (project.Issue, error) {
-
-	issues, err := service.GetIssues(ctx, remote.Owner, remote.RepoName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	selectedIssueTitle, err := utils.PipeToPeco(project.CreateIssueInfos(issues))
-	if err != nil {
-		return nil, err
-	}
-
-	if selectedIssueTitle == "" {
-		return nil, nil
-	}
-
-	return project.FindIssue(issues, selectedIssueTitle)
+type FilterableStringer interface {
+	FilterString() string
 }
 
-func SelectPullRequestInteractive(ctx context.Context, service project.Service, remote *git.Remote) (project.Issue, error) {
-	prs, err := service.GetPullRequests(ctx, remote.Owner, remote.RepoName)
+type FilterableIssue struct {
+	project.Issue
+}
 
+type FilterablePullRequest struct {
+	project.PullRequest
+}
+
+func (f *FilterableIssue) FilterString() string {
+	return "#" + strconv.Itoa(f.GetNumber()) + " " + f.GetTitle()
+}
+
+func (f *FilterablePullRequest) FilterString() string {
+	return "!" + strconv.Itoa(f.GetNumber()) + " " + f.GetTitle()
+}
+
+func Filter(fss []FilterableStringer) (FilterableStringer, error) {
+	var infos []string
+	for _, fs := range fss {
+		infos = append(infos, fs.FilterString())
+	}
+	info, err := utils.PipeToPeco(infos)
 	if err != nil {
 		return nil, err
 	}
-
-	selectedPullRequestTitle, err := utils.PipeToPeco(project.CreatePullRequestInfos(prs))
-	if err != nil {
-		return nil, err
+	for _, fs := range fss {
+		if fs.FilterString() == info {
+			return fs, nil
+		}
 	}
-
-	if selectedPullRequestTitle == "" {
-		return nil, nil
-	}
-
-	return project.FindPullRequest(prs, selectedPullRequestTitle)
+	return nil, errors.New("not found")
 }
