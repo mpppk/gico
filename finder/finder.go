@@ -9,6 +9,29 @@ type FilterableStringer interface {
 	FilterString() string
 }
 
+type FilterStringer interface {
+	FilterString() string
+}
+
+type FilterableLink interface {
+	FilterStringer
+	GetHTMLURL() string
+}
+
+type FilterableUrl struct {
+	Url string
+	FilterStr string
+}
+
+func (f *FilterableUrl) FilterString() string{
+	return f.FilterStr
+}
+
+func (f *FilterableUrl) GetHTMLURL() string{
+	return f.Url
+}
+
+
 func Filter(fss []FilterableStringer) (FilterableStringer, error) {
 	var filterabletStrs []string
 	for _, fs := range fss {
@@ -27,27 +50,21 @@ func Filter(fss []FilterableStringer) (FilterableStringer, error) {
 }
 
 func FilterIssues(issues []*FilterableIssue) (*FilterableIssue, error) {
-	var filterableStrings []FilterableStringer
-	for _, is := range issues {
-		filterableStrings = append(filterableStrings, FilterableStringer(is))
-	}
-
-	res, err := Filter(filterableStrings)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*FilterableIssue), nil
+	res, err := Filter(toFilterableFromIssues(issues))
+	return res.(*FilterableIssue), err
 }
 
 func FilterPullRequests(prs []*FilterablePullRequest) (*FilterablePullRequest, error) {
-	var filterableStrings []FilterableStringer
-	for _, pr := range prs {
-		filterableStrings = append(filterableStrings, FilterableStringer(pr))
+	res, err := Filter(toFilterableFromPullRequests(prs))
+	return res.(*FilterablePullRequest), err
+}
+
+func FilterLinks(links []FilterableLink) (FilterableLink, error) {
+	var strs []FilterableStringer
+	for _, link := range links {
+		strs = append(strs, FilterableStringer(link))
 	}
 
-	res, err := Filter(filterableStrings)
-	if err != nil {
-		return nil, err
-	}
-	return res.(*FilterablePullRequest), nil
+	res, err := Filter(strs)
+	return res.(FilterableLink), err
 }

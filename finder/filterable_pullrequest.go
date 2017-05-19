@@ -12,3 +12,10 @@ type FilterablePullRequest struct {
 func (f *FilterablePullRequest) FilterString() string {
 	return "!" + strconv.Itoa(f.GetNumber()) + " " + f.GetTitle()
 }
+
+func toFilterableFromPullRequests(prs []*FilterablePullRequest) (strs []FilterableStringer) {
+	for _, pr := range prs {
+		strs = append(strs, FilterableStringer(pr))
+	}
+	return strs
+}

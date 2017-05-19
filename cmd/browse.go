@@ -8,12 +8,6 @@ import (
 	"github.com/mpppk/gico/finder"
 )
 
-type FilterStringer interface {
-	FilterString() string
-}
-
-var issueFlag bool
-var prFlag bool
 // browseCmd represents the browse command
 var browseCmd = &cobra.Command{
 	Use:   "browse",
@@ -24,9 +18,35 @@ var browseCmd = &cobra.Command{
 		utils.PanicIfErrorExist(err)
 		sw := finder.NewServiceWrapper(base)
 
-		url, err := sw.GetRepositoryURL()
+		var links []finder.FilterableLink
+		repoUrl, err := sw.GetRepositoryURL()
 		utils.PanicIfErrorExist(err)
-		open.Run(url)
+		issuesUrl, err := sw.GetIssuesURL()
+		utils.PanicIfErrorExist(err)
+		pullsUrl, err := sw.GetPullRequestsURL()
+		utils.PanicIfErrorExist(err)
+
+		links = append(links,
+			&finder.FilterableUrl{Url: repoUrl, FilterStr: "*repo"},
+			&finder.FilterableUrl{Url: issuesUrl, FilterStr: "#issues"},
+			&finder.FilterableUrl{Url: pullsUrl, FilterStr: "!pullrequests"},
+		)
+
+		issues, err := sw.GetFilterableIssues()
+		utils.PanicIfErrorExist(err)
+		for _, issue := range issues {
+			links = append(links, issue)
+		}
+
+		pulls, err := sw.GetFilterablePullRequests()
+		utils.PanicIfErrorExist(err)
+		for _, pull := range pulls {
+			links = append(links, pull)
+		}
+
+		link, err := finder.FilterLinks(links)
+		utils.PanicIfErrorExist(err)
+		open.Run(link.GetHTMLURL())
 	},
 }
 
